@@ -35,6 +35,7 @@ namespace UnityEngine.Rendering.Universal.Internal
         {
             m_Source = colorHandle;
             isBlitPass = true;
+            profilingSampler = new ProfilingSampler("Blit Pass");
         }
 
         /// <inheritdoc/>
@@ -54,7 +55,7 @@ namespace UnityEngine.Rendering.Universal.Internal
 
             bool isSceneViewCamera = cameraData.isSceneViewCamera;
             CommandBuffer cmd = CommandBufferPool.Get();
-            using (new ProfilingScope(cmd, ProfilingSampler.Get(URPProfileId.FinalBlit)))
+            using (new ProfilingScope(cmd, profilingSampler))
             {
 
                 CoreUtils.SetKeyword(cmd, ShaderKeywordStrings.LinearToSRGBConversion,
@@ -63,6 +64,7 @@ namespace UnityEngine.Rendering.Universal.Internal
                 cmd.SetGlobalTexture(ShaderPropertyId.sourceTex, m_Source.Identifier());
                 //if (isBlitPass)
                     CameraColorSpaceUsage.EnableColorSpace(cameraData, cmd);
+                
 #if ENABLE_VR && ENABLE_XR_MODULE
                 if (cameraData.xr.enabled)
                 {
@@ -128,6 +130,10 @@ namespace UnityEngine.Rendering.Universal.Internal
                 if (isBlitPass) 
                 {
                     cmd.Blit(cameraTarget, m_Source.Identifier(), m_BlitMaterial);
+                }
+                else
+                {
+                    CameraColorSpaceUsage.DisableKeywords(cmd);
                 }
             }
 

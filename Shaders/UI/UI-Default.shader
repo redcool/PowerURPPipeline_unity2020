@@ -58,7 +58,7 @@ Shader "UI/Default"
 
             #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
-            #pragma multi_compile_fragment _ _SRGB_TO_LINEAR_CONVERSION
+            #pragma multi_compile_fragment _ _SRGB_TO_LINEAR_CONVERSION _LINEAR_TO_SRGB_CONVERSION
 
             struct appdata_t
             {
@@ -85,6 +85,8 @@ Shader "UI/Default"
             float4 _MainTex_ST;
             float _UIMaskSoftnessX;
             float _UIMaskSoftnessY;
+
+            float _GammeValue;
 
             v2f vert(appdata_t v)
             {
@@ -125,8 +127,15 @@ Shader "UI/Default"
                     2 texture enable SRGB
                 **/
 
+                
                 #if defined(_SRGB_TO_LINEAR_CONVERSION)
-                // color.rgb = LinearToGammaSpace(color.rgb);
+                // return float4(0,1,0,1);
+                color.rgb = GammaToLinearSpace(color.rgb);
+                #endif
+
+                #if _LINEAR_TO_SRGB_CONVERSION
+                // return float4(1,0,0,1);
+                color.rgb = LinearToGammaSpace(color.rgb);
                 #endif
 
                 color.rgb *= color.a;

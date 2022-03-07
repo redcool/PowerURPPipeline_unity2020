@@ -76,7 +76,7 @@ namespace UnityEngine.Rendering.Universal
         public ShaderResources shaders = null;
 
         [SerializeField] LayerMask m_OpaqueLayerMask = -1 ;
-        [SerializeField] LayerMask m_TransparentLayerMask = -1 & ~(1 << 1) & ~(1 << 5);
+        [SerializeField] LayerMask m_TransparentLayerMask = -1 & ~(1 << 1) & ~(1 << 5); // remove ui, transparent FX(vfx)
         [SerializeField] StencilStateData m_DefaultStencilState = new StencilStateData() { passOperation = StencilOp.Replace }; // This default state is compatible with deferred renderer.
         [SerializeField] bool m_ShadowTransparentReceive = true;
         [SerializeField] RenderingMode m_RenderingMode = RenderingMode.Forward;

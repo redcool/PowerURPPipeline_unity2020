@@ -1,5 +1,4 @@
 using UnityEngine.Rendering.Universal.Internal;
-using System.Reflection;
 
 namespace UnityEngine.Rendering.Universal
 {
@@ -271,7 +270,8 @@ namespace UnityEngine.Rendering.Universal
                     return;
 #endif
                 EnqueuePass(m_RenderTransparentForwardPass);
-                EnqueuePass(m_RenderUIPass);
+                if (cameraData.renderType == CameraRenderType.Overlay)
+                    EnqueuePass(m_RenderUIPass);
                 return;
             }
 
@@ -472,7 +472,9 @@ namespace UnityEngine.Rendering.Universal
                 }
 
                 EnqueuePass(m_RenderTransparentForwardPass);
-                EnqueuePass(m_RenderUIPass);
+
+                if(cameraData.renderType == CameraRenderType.Overlay)
+                    EnqueuePass(m_RenderUIPass);
             }
             EnqueuePass(m_OnRenderObjectCallbackPass);
 
@@ -552,7 +554,7 @@ namespace UnityEngine.Rendering.Universal
                 EnqueuePass(m_PostProcessPass);
             }
 
-            else if (cameraData.colorSpaceUsage == CameraColorSpaceUsage.ColorSpaceUsage.LinearToGamma)
+            else if (QualitySettings.activeColorSpace == ColorSpace.Linear && cameraData.colorSpaceUsage == CameraColorSpaceUsage.ColorSpaceUsage.LinearToGamma)
             {
                 m_BlitPass.SetupBlit(cameraTargetDescriptor, m_ActiveCameraColorAttachment);
                 EnqueuePass(m_BlitPass);

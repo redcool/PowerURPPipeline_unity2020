@@ -78,10 +78,16 @@ namespace UnityEngine.Rendering.Universal.Internal
                     : new Vector4(flipSign, 0.0f, 1.0f, 1.0f);
                 cmd.SetGlobalVector(ShaderPropertyId.scaleBiasRt, scaleBias);
 
+                Camera camera = renderingData.cameraData.camera;
+                var isUICamera = renderingData.cameraData.renderType == CameraRenderType.Overlay &&
+                    camera.cullingMask == LayerMask.GetMask("UI") &&
+                    QualitySettings.activeColorSpace == ColorSpace.Linear;
+                if (isUICamera)
+                    CameraColorSpaceUsage.EnableColorSpace(CameraColorSpaceUsage.ColorSpaceUsage.LinearToGamma, cmd);
+
                 context.ExecuteCommandBuffer(cmd);
                 cmd.Clear();
 
-                Camera camera = renderingData.cameraData.camera;
                 var sortFlags = (m_IsOpaque) ? renderingData.cameraData.defaultOpaqueSortFlags : SortingCriteria.CommonTransparent;
                 var drawSettings = CreateDrawingSettings(m_ShaderTagIdList, ref renderingData, sortFlags);
                 var filterSettings = m_FilteringSettings;
@@ -93,20 +99,12 @@ namespace UnityEngine.Rendering.Universal.Internal
                     filterSettings.layerMask = -1;
                 }
 #endif
-
-                var isUICamera = camera.cullingMask == LayerMask.GetMask("UI");
-
-                //if(isUICamera)
-                //{
-                //    CameraColorSpaceUsage.EnableColorSpace(renderingData.cameraData, cmd);
-                //}
-
                 context.DrawRenderers(renderingData.cullResults, ref drawSettings, ref filterSettings, ref m_RenderStateBlock);
 
-                //if (isUICamera)
-                //{
-                //    CameraColorSpaceUsage.DisableColorSpace(renderingData.cameraData, cmd);
-                //}
+                if (isUICamera)
+                {
+                    CameraColorSpaceUsage.DisableColorSpace(CameraColorSpaceUsage.ColorSpaceUsage.LinearToGamma, cmd);
+                }
                 // Render objects that did not match any shader pass with error shader
                 RenderingUtils.RenderObjectsWithError(context, ref renderingData.cullResults, camera, filterSettings, SortingCriteria.None);
             }

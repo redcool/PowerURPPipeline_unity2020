@@ -12,13 +12,16 @@ namespace UnityEngine.Rendering.Universal
         public enum ColorSpaceUsage
         {
             PipelineColorSpace=0,
-            LinearToGamma=1, // rendered blit to gamma
-            GammaToLinear=3, // rendered blit to linear
+            LinearToGamma=1, // rendere in linear final blit to gamma
+            GammaToLinear=3, // rendere in gamma final blit to linear
         }
 
-        static string GetKeyword(CameraData camData)
+        static string GetKeyword(ColorSpaceUsage colorSpaceUsage)
         {
-            switch (camData.colorSpaceUsage)
+            if (QualitySettings.activeColorSpace != ColorSpace.Linear)
+                return "";
+
+            switch (colorSpaceUsage)
             {
                 case ColorSpaceUsage.LinearToGamma: return ShaderKeywordStrings.LinearToSRGBConversion; 
                 case ColorSpaceUsage.GammaToLinear: return ShaderKeywordStrings.SRGBToLinearConversion; 
@@ -32,28 +35,36 @@ namespace UnityEngine.Rendering.Universal
             cmd?.DisableShaderKeyword(ShaderKeywordStrings.SRGBToLinearConversion);
         }
 
-        public static void EnableColorSpace(CameraData camData, CommandBuffer cmd, Material material = null)
-        {
-            DisableKeywords(cmd);
 
-            var kw = GetKeyword(camData);
+
+        public static void EnableColorSpace(ColorSpaceUsage colorSpaceUsage, CommandBuffer cmd, Material material = null)
+        {
+            var kw = GetKeyword(colorSpaceUsage);
             if (string.IsNullOrEmpty(kw))
                 return;
 
             cmd?.EnableShaderKeyword(kw);
             material?.EnableKeyword(kw);
-
         }
-        public static void DisableColorSpace(CameraData camData, CommandBuffer cmd, Material material = null)
-        {
-            DisableKeywords(cmd);
 
-            var kw = GetKeyword(camData);
+        public static void EnableColorSpace(CameraData cameraData,CommandBuffer cmd,Material material = null)
+        {
+            EnableColorSpace(cameraData.colorSpaceUsage, cmd, material);
+        }
+
+        public static void DisableColorSpace(ColorSpaceUsage colorSpaceUsage, CommandBuffer cmd, Material material = null)
+        {
+
+            var kw = GetKeyword(colorSpaceUsage);
             if (string.IsNullOrEmpty(kw))
                 return;
 
             cmd?.DisableShaderKeyword(kw);
             material?.DisableKeyword(kw);
+        }
+        public static void DisableColorSpace(CameraData cameraData, CommandBuffer cmd, Material material = null)
+        {
+            DisableColorSpace(cameraData.colorSpaceUsage, cmd, material);
         }
     }
 }

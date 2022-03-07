@@ -16,7 +16,7 @@ namespace UnityEditor.Rendering.Universal
             public static readonly GUIContent OpaqueMask = new GUIContent("Opaque Layer Mask", "Controls which opaque layers this renderer draws.");
             public static readonly GUIContent TransparentMask = new GUIContent("Transparent Layer Mask", "Controls which transparent layers this renderer draws.");
             public static readonly GUIContent UIMask = new GUIContent("UI Layer Mask", "Controls which ui transparent layers this renderer draws.");
-            public static readonly GUIContent VFXMask = new GUIContent("Transparent Layer Mask", "Controls which vfx transparent layers this renderer draws.");
+            public static readonly GUIContent VFXMask = new GUIContent("VFX Layer Mask", "Controls which vfx transparent layers this renderer draws.");
             public static readonly GUIContent LightingLabel = new GUIContent("Lighting", "Settings related to lighting and rendering paths.");
             public static readonly GUIContent RenderingModeLabel = new GUIContent("Rendering Path", "Select a rendering path.");
             public static readonly GUIContent accurateGbufferNormalsLabel = EditorGUIUtility.TrTextContent("Accurate G-buffer normals", "Normals in G-buffer use octahedron encoding/decoding. This improves visual quality but might reduce performance.");
