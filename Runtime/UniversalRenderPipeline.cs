@@ -779,6 +779,17 @@ namespace UnityEngine.Rendering.Universal
             cameraData.xr = XRPass.emptyPass;
 #endif
 
+            if (baseAdditionalCameraData != null)
+            {
+                if (baseAdditionalCameraData.amdFSR != UniversalAdditionalCameraData.AMDFSR.Disabled)
+                {
+                    //settings.msaaSampleCount = 8; // NOTE! You can also use some other AA solutions.
+                    var amdFSRSetting = amdFSRSettingsPreset[(int)baseAdditionalCameraData.amdFSR];
+                    cameraData.renderScale = amdFSRSetting.m_RenderScale;
+                    Shader.SetGlobalFloat("amd_fsr_mipmap_bias", amdFSRSetting.m_MipmapBias);
+                }
+            }
+
             var commonOpaqueFlags = SortingCriteria.CommonOpaque;
             var noFrontToBackOpaqueFlags = SortingCriteria.SortingLayer | SortingCriteria.RenderQueue | SortingCriteria.OptimizeStateChanges | SortingCriteria.CanvasOrder;
             bool hasHSRGPU = SystemInfo.hasHiddenSurfaceRemovalOnGPU;
@@ -872,16 +883,16 @@ namespace UnityEngine.Rendering.Universal
 
             cameraData.SetViewAndProjectionMatrix(camera.worldToCameraMatrix, projectionMatrix);
 
-            if (additionalCameraData != null)
-            {
-                if (additionalCameraData.amdFSR != UniversalAdditionalCameraData.AMDFSR.Disabled)
-                {
-                    settings.msaaSampleCount = 8; // NOTE! You can also use some other AA solutions.
-                    var amdFSRSetting = amdFSRSettingsPreset[(int)additionalCameraData.amdFSR];
-                    cameraData.renderScale = amdFSRSetting.m_RenderScale;
-                    Shader.SetGlobalFloat("amd_fsr_mipmap_bias", amdFSRSetting.m_MipmapBias);
-                }
-            }
+            //if (additionalCameraData != null)
+            //{
+            //    if (additionalCameraData.amdFSR != UniversalAdditionalCameraData.AMDFSR.Disabled)
+            //    {
+            //        //settings.msaaSampleCount = 8; // NOTE! You can also use some other AA solutions.
+            //        var amdFSRSetting = amdFSRSettingsPreset[(int)additionalCameraData.amdFSR];
+            //        cameraData.renderScale = amdFSRSetting.m_RenderScale;
+            //        Shader.SetGlobalFloat("amd_fsr_mipmap_bias", amdFSRSetting.m_MipmapBias);
+            //    }
+            //}
         }
 
         static void InitializeRenderingData(UniversalRenderPipelineAsset settings, ref CameraData cameraData, ref CullingResults cullResults,

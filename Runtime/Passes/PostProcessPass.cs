@@ -1379,9 +1379,10 @@ namespace UnityEngine.Rendering.Universal.Internal
             using (new ProfilingScope(cmd, ProfilingSampler.Get(URPProfileId.FSR)))
             {
                 EdgeAdaptiveSpatialUpsampling(cmd, cameraData, needs_convert_to_srgb);
-                RobustContrastAdaptiveSharpening(cmd, cameraData, needs_convert_to_srgb);
+                //RobustContrastAdaptiveSharpening(cmd, cameraData, needs_convert_to_srgb);
             }
-            cmd.Blit(ShaderConstants._RCASOutputTexture, dst, material);
+            cmd.Blit(ShaderConstants._EASUOutputTexture, dst, material);
+            //cmd.Blit(ShaderConstants._RCASOutputTexture, dst, material);
         }
         #endregion
 
