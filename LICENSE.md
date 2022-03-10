@@ -1,5 +1,29 @@
-com.unity.render-pipelines.universal copyright © 2020 Unity Technologies ApS
 
-Licensed under the Unity Companion License for Unity-dependent projects--see [Unity Companion License](http://www.unity3d.com/legal/licenses/Unity_Companion_License). 
+Universal Render Pipeline extends prj.
 
-Unless expressly provided otherwise, the Software under this license is made available strictly on an “AS IS” BASIS WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. Please review the license for details on these and other terms and conditions.
+Copy folder "com.unity.render-pipelines.universal" to Packages
+
+==========================Basic:
+
+develop version:
+Unity2020.3.30, urp 10.8.1
+
+git clone from this:
+https://github.com/needle-mirror/com.unity.render-pipelines.universal.git
+
+git checkout 10.8.1
+
+
+==========================Features
+1 Amd Fsr
+    MainCamera check Rendering/PostProcessing
+    AMD FRS 1.0, select a item.
+
+2 Camera rendering in gamma space
+    add new Camera
+    check Redering/CullingMask is UI
+    check Rendering/Color Space Usage to gamma
+
+    set UIObject's layer is UI
+    done
+
