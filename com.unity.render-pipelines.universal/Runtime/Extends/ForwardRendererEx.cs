@@ -26,28 +26,29 @@ namespace UnityEngine.Rendering.Universal
         {
             ref var cameraData = ref renderingData.cameraData;
 
-            if (cameraData.renderType == CameraRenderType.Overlay)
+            var isUICamera = 
+                QualitySettings.activeColorSpace == ColorSpace.Linear &&
+                cameraData.exData.colorSpaceUsage == ColorSpace.Gamma &&
+                cameraData.renderType == CameraRenderType.Overlay
+                ;
+
+
+            if (isUICamera)
             {
                 drawUIObjectPass.Setup(cameraData.camera.cullingMask);
                 drawUIObjectPass.RenderTarget = cameraData.exData.enableFSR ? PostProcessPass.FsrShaderConstants._EASUOutputTexture : ShaderPropertyId._FULLSIZE_GAMMA_TEX;
 
                 EnqueuePass(drawUIObjectPass);
-            }
 
-            var isUICamera = QualitySettings.activeColorSpace == ColorSpace.Linear &&
-                //cameraData.exData.colorSpaceUsage == ColorSpace.Gamma &&
-                cameraData.renderType == CameraRenderType.Overlay
-                ;
 
-            if (isUICamera)
-            {
-                DequeuePass(m_FinalBlitPass); // ui cammera use gammaPostPass
 
                 if (!cameraData.exData.enableFSR)
                 {
                     gammaPrePass.SetupPrePass(cameraData.cameraTargetDescriptor, m_ActiveCameraColorAttachment);
                     EnqueuePass(gammaPrePass);
                 }
+
+                DequeuePass(m_FinalBlitPass); // ui cammera use gammaPostPass
 
                 gammaPostPass.SetupPostPass(cameraData.cameraTargetDescriptor, m_ActiveCameraColorAttachment);
                 EnqueuePass(gammaPostPass);

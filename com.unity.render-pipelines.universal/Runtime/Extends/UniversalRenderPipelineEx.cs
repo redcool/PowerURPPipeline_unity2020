@@ -59,9 +59,9 @@ namespace UnityEngine.Rendering.Universal
                 if (cameraData.renderType == CameraRenderType.Base)
                     cameraData.exData.baseCameraAmdFSR = additionalCameraData.renderPostProcessing?additionalCameraData.amdFSR : UniversalAdditionalCameraData.AMDFSR.Disabled;
 
-                if (resolveFinalTarget && cameraData.exData.baseCameraAmdFSR != UniversalAdditionalCameraData.AMDFSR.Disabled)
+                if (cameraData.exData.baseCameraAmdFSR != UniversalAdditionalCameraData.AMDFSR.Disabled)
                 {
-                    asset.msaaSampleCount = 8; // NOTE! You can also use some other AA solutions.
+                    //asset.msaaSampleCount = 8; // NOTE! You can also use some other AA solutions.
                     var amdFSRSetting = amdFSRSettingsPreset[(int)cameraData.exData.baseCameraAmdFSR];
                     cameraData.renderScale = amdFSRSetting.m_RenderScale;
                     cameraData.exData.enableFSR = true;
