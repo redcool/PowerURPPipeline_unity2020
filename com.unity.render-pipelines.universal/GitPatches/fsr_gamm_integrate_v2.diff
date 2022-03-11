@@ -8,7 +8,7 @@
  Runtime/Data/PostProcessData.asset                 |   17 +-
  Runtime/Data/PostProcessData.cs                    |    4 +-
  Runtime/Extends.meta                               |    8 +
- Runtime/Extends/ForwardRendererEx.cs               |   64 +
+ Runtime/Extends/ForwardRendererEx.cs               |   68 +
  Runtime/Extends/ForwardRendererEx.cs.meta          |   11 +
  Runtime/Extends/Passes.meta                        |    8 +
  Runtime/Extends/Passes/BlitPassEx.cs               |  110 +
@@ -50,7 +50,7 @@
  Shaders/UI/UI-Default.shader                       |  148 +
  Shaders/UI/UI-Default.shader.meta                  |   10 +
  Shaders/Utils/Blit.shader                          |    4 +-
- 52 files changed, 9810 insertions(+), 28 deletions(-)
+ 52 files changed, 9814 insertions(+), 28 deletions(-)
 
 diff --git a/Editor/Extends.meta b/Editor/Extends.meta
 new file mode 100644
@@ -4901,10 +4901,10 @@ index 0000000..454d830
 +  assetBundleVariant: 
 diff --git a/Runtime/Extends/ForwardRendererEx.cs b/Runtime/Extends/ForwardRendererEx.cs
 new file mode 100644
-index 0000000..2cb1177
+index 0000000..eb2e95f
 --- /dev/null
 +++ b/Runtime/Extends/ForwardRendererEx.cs
-@@ -0,0 +1,64 @@
+@@ -0,0 +1,68 @@
 +﻿using System;
 +using System.Collections.Generic;
 +using System.Linq;
@@ -4917,6 +4917,7 @@ index 0000000..2cb1177
 +
 +    partial class ForwardRenderer
 +    {
++        // ui pass has 2 feature : 1 full resolution rendering,2 can working in gamma
 +        DrawObjectsPassEx drawUIObjectPass;
 +
 +        BlitPassEx gammaPrePass, gammaPostPass;
@@ -4933,28 +4934,31 @@ index 0000000..2cb1177
 +        {
 +            ref var cameraData = ref renderingData.cameraData;
 +
-+            if (cameraData.renderType == CameraRenderType.Overlay)
++            var isUICamera = 
++                (cameraData.camera.cullingMask  & LayerMask.GetMask("UI")) != 0 &&
++                cameraData.renderType == CameraRenderType.Overlay
++                ;
++
++
++            if (isUICamera)
 +            {
++                // draw ui pass
 +                drawUIObjectPass.Setup(cameraData.camera.cullingMask);
 +                drawUIObjectPass.RenderTarget = cameraData.exData.enableFSR ? PostProcessPass.FsrShaderConstants._EASUOutputTexture : ShaderPropertyId._FULLSIZE_GAMMA_TEX;
 +
 +                EnqueuePass(drawUIObjectPass);
-+            }
++                
 +
-+            var isUICamera = QualitySettings.activeColorSpace == ColorSpace.Linear &&
-+                //cameraData.exData.colorSpaceUsage == ColorSpace.Gamma &&
-+                cameraData.renderType == CameraRenderType.Overlay
-+                ;
 +
-+            if (isUICamera)
-+            {
-+                DequeuePass(m_FinalBlitPass); // ui cammera use gammaPostPass
-+
++                // draw ui pre pass
 +                if (!cameraData.exData.enableFSR)
 +                {
 +                    gammaPrePass.SetupPrePass(cameraData.cameraTargetDescriptor, m_ActiveCameraColorAttachment);
 +                    EnqueuePass(gammaPrePass);
 +                }
++
++                // draw ui post pass
++                DequeuePass(m_FinalBlitPass); // ui cammera use gammaPostPass
 +
 +                gammaPostPass.SetupPostPass(cameraData.cameraTargetDescriptor, m_ActiveCameraColorAttachment);
 +                EnqueuePass(gammaPostPass);
@@ -5709,7 +5713,7 @@ index 0000000..bc8b087
 +  assetBundleVariant: 
 diff --git a/Runtime/Extends/UniversalRenderPipelineEx.cs b/Runtime/Extends/UniversalRenderPipelineEx.cs
 new file mode 100644
-index 0000000..bdb3245
+index 0000000..48f146d
 --- /dev/null
 +++ b/Runtime/Extends/UniversalRenderPipelineEx.cs
 @@ -0,0 +1,73 @@
@@ -5774,9 +5778,9 @@ index 0000000..bdb3245
 +                if (cameraData.renderType == CameraRenderType.Base)
 +                    cameraData.exData.baseCameraAmdFSR = additionalCameraData.renderPostProcessing?additionalCameraData.amdFSR : UniversalAdditionalCameraData.AMDFSR.Disabled;
 +
-+                if (resolveFinalTarget && cameraData.exData.baseCameraAmdFSR != UniversalAdditionalCameraData.AMDFSR.Disabled)
++                if (cameraData.exData.baseCameraAmdFSR != UniversalAdditionalCameraData.AMDFSR.Disabled)
 +                {
-+                    asset.msaaSampleCount = 8; // NOTE! You can also use some other AA solutions.
++                    //asset.msaaSampleCount = 8; // NOTE! You can also use some other AA solutions.
 +                    var amdFSRSetting = amdFSRSettingsPreset[(int)cameraData.exData.baseCameraAmdFSR];
 +                    cameraData.renderScale = amdFSRSetting.m_RenderScale;
 +                    cameraData.exData.enableFSR = true;
