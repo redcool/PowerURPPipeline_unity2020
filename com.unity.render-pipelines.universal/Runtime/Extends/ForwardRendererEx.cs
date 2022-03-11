@@ -10,6 +10,7 @@ namespace UnityEngine.Rendering.Universal
 
     partial class ForwardRenderer
     {
+        // ui pass has 2 feature : 1 full resolution rendering,2 can working in gamma
         DrawObjectsPassEx drawUIObjectPass;
 
         BlitPassEx gammaPrePass, gammaPostPass;
@@ -27,27 +28,29 @@ namespace UnityEngine.Rendering.Universal
             ref var cameraData = ref renderingData.cameraData;
 
             var isUICamera = 
-                QualitySettings.activeColorSpace == ColorSpace.Linear &&
-                cameraData.exData.colorSpaceUsage == ColorSpace.Gamma &&
+                (cameraData.camera.cullingMask  & LayerMask.GetMask("UI")) != 0 &&
                 cameraData.renderType == CameraRenderType.Overlay
                 ;
 
 
             if (isUICamera)
             {
+                // draw ui pass
                 drawUIObjectPass.Setup(cameraData.camera.cullingMask);
                 drawUIObjectPass.RenderTarget = cameraData.exData.enableFSR ? PostProcessPass.FsrShaderConstants._EASUOutputTexture : ShaderPropertyId._FULLSIZE_GAMMA_TEX;
 
                 EnqueuePass(drawUIObjectPass);
+                
 
 
-
+                // draw ui pre pass
                 if (!cameraData.exData.enableFSR)
                 {
                     gammaPrePass.SetupPrePass(cameraData.cameraTargetDescriptor, m_ActiveCameraColorAttachment);
                     EnqueuePass(gammaPrePass);
                 }
 
+                // draw ui post pass
                 DequeuePass(m_FinalBlitPass); // ui cammera use gammaPostPass
 
                 gammaPostPass.SetupPostPass(cameraData.cameraTargetDescriptor, m_ActiveCameraColorAttachment);
